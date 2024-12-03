@@ -1,7 +1,9 @@
 import { day1 } from "./day1";
+import { day2 } from "./day2";
 
 const days: {[key: number]: () => void;} = {
     1: day1,
+    2: day2,
 };
 
 let day: number = -1;
