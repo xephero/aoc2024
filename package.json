@@ -1,0 +1,12 @@
+{
+  "type": "module",
+  "scripts": {
+    "day": "tsx runner.ts"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.1"
+  },
+  "dependencies": {
+    "tsx": "^4.19.2"
+  }
+}
