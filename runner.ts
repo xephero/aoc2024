@@ -1,11 +1,13 @@
 import { day1 } from "./solutions/day1";
 import { day2 } from "./solutions/day2";
 import { day3 } from "./solutions/day3";
+import { day4 } from "./solutions/day4";
 
 const days: {[key: number]: () => void;} = {
     1: day1,
     2: day2,
     3: day3,
+    4: day4,
 };
 
 let day: number = -1;
