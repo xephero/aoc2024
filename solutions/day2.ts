@@ -1,4 +1,4 @@
-import { readDayInput } from "./utility";
+import { readDayInput } from "../utility";
 
 function isSafeChange(levels: number[], index: number) {
     if (index === 0)

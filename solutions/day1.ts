@@ -1,4 +1,4 @@
-import { readDayInput } from "./utility";
+import { readDayInput } from "../utility";
 
 export function day1() {
     const input = readDayInput(1);

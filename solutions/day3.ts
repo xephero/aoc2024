@@ -1,4 +1,4 @@
-import { readDayInput } from "./utility";
+import { readDayInput } from "../utility";
 
 export function day3() {
     const matches = readDayInput(3)
