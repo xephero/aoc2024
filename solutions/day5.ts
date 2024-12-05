@@ -8,7 +8,10 @@ export function day5() {
     const later: number[] = [];
     const ruleLines = sections[0].split('\n');
     const pageLines = sections[1].split('\n');
-    let middleSum = 0;
+    let middleSumCorrect = 0;
+    let middleSumFixed = 0;
+
+    const wrongOrdered: number[][] = [];
 
     for (const rule of ruleLines) {
         const pageNumbers = rule.split('|').map(p => parseInt(p));
@@ -22,9 +25,12 @@ export function day5() {
         let failed = false;
         const seen: number[] = [];
 
-        for (const page of pages) {
-            // Only look backwards
+        for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+            const page = pages[pageIndex];
+
             for (let i = 0; i < earlier.length; i++) {
+                // If the current page is in the earlier list, and we've
+                // seen a page in the later list, this fails
                 if (earlier[i] === page && seen.includes(later[i])) {
                     failed = true;
                     break;
@@ -34,9 +40,32 @@ export function day5() {
             seen.push(page);
         }
 
+        if (failed) {
+            // Fix the page ordering
+            pages.sort((a, b) => {
+                // If a should go before b, a|b exists, return a negative number
+                if (ruleLines.indexOf(`${a}|${b}`) > 0)
+                    return -1;
+
+                // If a should go after b, b|a exists, return a positive number
+                else if (ruleLines.indexOf(`${b}|${a}`))
+                    return 1;
+
+                // If neither exist, return 0
+                else return 0;
+            });
+
+            console.log(`Fixed: ${pages.join(',')}`);
+        }
+
+        const middlePage = pages[Math.floor(pages.length/2)];
+
         if (!failed)
-            middleSum += pages[Math.floor(pages.length/2)];
+            middleSumCorrect += middlePage;
+        else
+            middleSumFixed += middlePage;
     }
 
-    console.log(`Part 1: ${middleSum}`);
+    console.log(`Part 1: ${middleSumCorrect}`);
+    console.log(`Part 2: ${middleSumFixed}`);
 }
