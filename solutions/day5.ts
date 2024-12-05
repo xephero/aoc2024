@@ -13,11 +13,11 @@ export function day5() {
 
         // Fix the page ordering
         pages.sort((a, b) => {
-            // If a should go before b, a|b exists, return a negative number
+            // If a|b exists, a < b, return a negative number
             if (ruleLines.indexOf(`${a}|${b}`) > 0)
                 return -1;
 
-            // If a should go after b, b|a exists, return a positive number
+            // If b|a exists, a > b, return a positive number
             else if (ruleLines.indexOf(`${b}|${a}`))
                 return 1;
 
