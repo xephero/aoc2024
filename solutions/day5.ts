@@ -4,12 +4,11 @@ export function day5() {
     const input = readDayInput(5);
 
     const [ruleLines,pageLines] = input.split('\n\n').map(s => s.split('\n'));
+    const pageLists = pageLines.map(line => line.split(',').map(p => parseInt(p)));
     let middleSumCorrect = 0;
     let middleSumFixed = 0;
 
-    for (const pageLine of pageLines) {
-        const pages = pageLine.split(',').map(p => parseInt(p));
-
+    for (const pages of pageLists) {
         let preSort = JSON.stringify(pages);
 
         // Fix the page ordering
