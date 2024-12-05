@@ -26,9 +26,8 @@ export function day5() {
         });
 
         const middlePage = pages[Math.floor(pages.length/2)];
-        let postSort = JSON.stringify(pages);
 
-        if (preSort === postSort)
+        if (preSort === JSON.stringify(pages))
             middleSumCorrect += middlePage;
         else
             middleSumFixed += middlePage;
