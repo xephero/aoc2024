@@ -1,3 +1,4 @@
+import { Dir } from "fs";
 import { readDayInput } from "../utility";
 
 type Coordinate = {
@@ -27,6 +28,46 @@ function getNextDirection(current: Direction = LEFT) {
     return UP;
 }
 
+function simulateRun(initCoord: Coordinate, initDir: Direction, grid: string[][]) {
+    const c = structuredClone(initCoord);
+
+    const spots = [{
+        cx: c.x,
+        cy: c.y,
+        d: initDir,
+    }]
+
+    // Imagine we turned here...
+    let d = getNextDirection(initDir);
+
+    while (c.x >= 0 && c.x < grid[0].length && c.y >= 0 && c.y < grid.length) {
+        // we walked into an obstacle!
+        if (grid[c.y][c.x] === '#') {
+            // back up one space and turn
+            c.x -= d.x;
+            c.y -= d.y;
+            d = getNextDirection(d);
+        } else {
+            // Were we here already?
+            if (-1 !== spots.findIndex(s =>
+                s.cx === c.x &&
+                s.cy === c.y &&
+                s.d === d
+            ))
+                return true;
+
+            spots.push({cx: c.x, cy: c.y, d});
+        }
+
+        // walk forward in direction
+        c.x += d.x;
+        c.y += d.y;
+        
+    }
+
+    return false;
+}
+
 export function day6() {
     const input = readDayInput(6);
 
@@ -46,21 +87,37 @@ export function day6() {
         }
     }
 
+    // Add the starting spot to a loop spot just to ensure that it doesn't get added later
+    
+    const loopSpots: Coordinate[] = [structuredClone(c)];
+
     // Mark starting point as traveled
     grid[c.y][c.x] = 'X';
 
     while (c.x >= 0 && c.x < grid[0].length && c.y >= 0 && c.y < grid.length) {
 
-        // we walked into an obstacle! back up and turn
+        // we walked into an obstacle!
         if (grid[c.y][c.x] === '#') {
+            // back up one space and turn
             c.x -= d.x;
             c.y -= d.y;
             d = getNextDirection(d);
         }
 
-        // we're clear! mark this spot as traveled
+        // we can walk forward
         else {
             grid[c.y][c.x] = 'X';
+
+            // check for loopability and add if we haven't seen the spot yet
+            const loop = {x: c.x + d.x, y: c.y + d.y};
+            if (
+                loop.x >= 0 && loop.x < grid[0].length &&
+                loop.y >= 0 && loop.y < grid.length &&
+                loopSpots.every(l => !(l.x === loop.x && l.y === loop.y)) &&
+                simulateRun(c, d, grid)
+            ) {
+                loopSpots.push(loop);
+            }
         }
 
         c.x += d.x;
@@ -74,5 +131,10 @@ export function day6() {
             if (grid[y][x] === "X")
                 visited += 1;
 
+    // Remove the starting position
+    loopSpots.shift();
+
     console.log(`Part 1: ${visited}`);
+    console.log(`Part 2: ${loopSpots.length}`);
+
 }
