@@ -14,11 +14,11 @@ export function day5() {
         // Fix the page ordering
         pages.sort((a, b) => {
             // If a|b exists, a < b, return a negative number
-            if (ruleLines.indexOf(`${a}|${b}`) > 0)
+            if (ruleLines.indexOf(`${a}|${b}`) >= 0)
                 return -1;
 
             // If b|a exists, a > b, return a positive number
-            else if (ruleLines.indexOf(`${b}|${a}`))
+            else if (ruleLines.indexOf(`${b}|${a}`) >= 0)
                 return 1;
 
             // If neither exist, return 0
