@@ -1,4 +1,3 @@
-import { Dir } from "fs";
 import { readDayInput } from "../utility";
 
 type Coordinate = {
@@ -9,6 +8,12 @@ type Coordinate = {
 type Direction = {
     x: -1 | 0 | 1,
     y: -1 | 0 | 1,
+};
+
+type Spot = {
+    cx: number,
+    cy: number,
+    d: Direction,
 };
 
 // 0,0 is top left
@@ -28,21 +33,14 @@ function getNextDirection(current: Direction = LEFT) {
     return UP;
 }
 
-function simulateRun(initCoord: Coordinate, initDir: Direction, grid: string[][]) {
+function simulateRun(initCoord: Coordinate, initDir: Direction, looper: Coordinate, grid: string[][]) {
     const c = structuredClone(initCoord);
-
-    const spots = [{
-        cx: c.x,
-        cy: c.y,
-        d: initDir,
-    }]
-
-    // Imagine we turned here...
-    let d = getNextDirection(initDir);
+    let d = initDir;
+    const spots: Spot[] = [];
 
     while (c.x >= 0 && c.x < grid[0].length && c.y >= 0 && c.y < grid.length) {
-        // we walked into an obstacle!
-        if (grid[c.y][c.x] === '#') {
+        // we walked into an obstacle! or our placed loop candidate obstacle!
+        if ((grid[c.y][c.x] === '#') || (looper.x == c.x && looper.y == c.y)) {
             // back up one space and turn
             c.x -= d.x;
             c.y -= d.y;
@@ -62,7 +60,6 @@ function simulateRun(initCoord: Coordinate, initDir: Direction, grid: string[][]
         // walk forward in direction
         c.x += d.x;
         c.y += d.y;
-        
     }
 
     return false;
@@ -111,17 +108,25 @@ export function day6() {
             // check for loopability and add if we haven't seen the spot yet
             const loop = {x: c.x + d.x, y: c.y + d.y};
             if (
+                // the prospective obstacle is in-bounds
                 loop.x >= 0 && loop.x < grid[0].length &&
                 loop.y >= 0 && loop.y < grid.length &&
+
+                // we haven't walked through it before (and so never would have gotten here in the first place)
+                grid[loop.y][loop.x] != 'X' &&
+
+                // this isn't already a spot we could put an obstacle for another loop route
                 loopSpots.every(l => !(l.x === loop.x && l.y === loop.y)) &&
-                simulateRun(c, d, grid)
+
+                // this does in fact call a loop
+                simulateRun(c, d, loop, grid)
             ) {
                 loopSpots.push(loop);
             }
-        }
 
-        c.x += d.x;
-        c.y += d.y;
+            c.x += d.x;
+            c.y += d.y;
+        }
     }
 
     // Count up all the Xes
