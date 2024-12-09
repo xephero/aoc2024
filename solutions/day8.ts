@@ -48,13 +48,6 @@ export function day8() {
         }
     }
 
-    for (const node of multiAntinodes) {
-        const nums = node.split(',').map(n => parseInt(n));
-        grid[nums[1]][nums[0]] = '#';
-    }
-
-    console.log(grid.map(l => l.join('')).join('\n'));
-
     console.log(`Part 1: ${soloAntinodes.size}`);
     console.log(`Part 2: ${multiAntinodes.size}`);
 }
