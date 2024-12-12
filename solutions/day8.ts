@@ -19,14 +19,19 @@ export function day8() {
             if (freq === '.')
                 continue;
 
+            // Given each origin, scan the field for matching signals
             for (let scanRow = 0; scanRow < rowMax; scanRow++) {
                 for (let scanCol = 0; scanCol < colMax; scanCol++) {
+
+                    // Origin doesn't count
                     if (scanRow === baseRow && scanCol === baseCol)
                         continue;
 
+                    // Skip non-matches
                     if (grid[scanRow][scanCol] !== freq)
                         continue;
 
+                    // Every antenna itself is an antinode for multi
                     multiAntinodes.add(`${scanCol},${scanRow}`);
 
                     const rowOffset = baseRow - scanRow;
@@ -35,10 +40,12 @@ export function day8() {
                     let antiRow = baseRow + (baseRow - scanRow);
                     let antiCol = baseCol + (baseCol - scanCol);
 
-                    if (antiRow >= 0 && antiRow < rowMax && antiCol >= 0 && antiCol < rowMax)
+                    // Add the first one for solo
+                    if (antiRow >= 0 && antiRow < rowMax && antiCol >= 0 && antiCol < colMax)
                         soloAntinodes.add(`${antiCol},${antiRow}`);
 
-                    while (antiRow >= 0 && antiRow < rowMax && antiCol >= 0 && antiCol < rowMax) {
+                    // Add the first and all others for multi
+                    while (antiRow >= 0 && antiRow < rowMax && antiCol >= 0 && antiCol < colMax) {
                         multiAntinodes.add(`${antiCol},${antiRow}`);
                         antiRow += rowOffset;
                         antiCol += colOffset;
