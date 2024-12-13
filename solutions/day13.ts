@@ -9,7 +9,7 @@ type Game = {
     py: number;
 }
 
-function findSolutions(game: Game): number[][] {
+function findSolution(game: Game): number[] {
     // I confess: I didn't know about gaussian inversion when I started this.
     // Thanks AoC for teaching me about it!
 
@@ -17,27 +17,32 @@ function findSolutions(game: Game): number[][] {
     // Button A: X+94, Y+34
     // Button B: X+22, Y+67
     // Prize: X=8400, Y=5400
-    //
-    // This can be modelled as a system of equations:
+
+    // This can be modeled as a system of equations:
     // 94a + 22b = 8400
     // 34a + 67b = 5400
-    //
-    // This can be put into an array like so:
+
+    // To solve this easily, we want to eliminate one variable:
+    // 0a + ??b = ??
+
+    // We can put the values into an array like so:
     // [ 94, 22, 8400 ] 
     // [ 34, 67, 5400 ]
 
-    // We subtract the first row from the second so as to make that 34 into 0
-    // Multiply all items in the first row by (34/94) and subtract
+    // We subtract the first row from the second, so as to make that 34 into 0
+    // Multiply all items in the first row by (34/94) and subtract that value from the second row value
     // [ 94, 22, 8400 ]
     // [ 0, (67 - 34/94 * 22), 5400 - 34/94 * 8400 ]
 
     // This functionally gives us an equation like:
     // 0a + (bottom middle)b = (bottom right)
-    
-    // Solving this is easy: divide bottom right by bottom middle
-    // It's then trivial to solve for b
 
-    // We don't need to do *all* of that in generalized matrices.
+    // Solving this is easy: divide bottom right by bottom middle
+    // b = (bottom right) / (bottom middle)
+
+    // Now that we have b, we can solve for a with standard algebra.
+
+    // We don't need to do *all* of that in generalized matrices though.
     // Just enough for this specific problem.
 
     const bottomRight = (game.py - (game.ay / game.ax) * game.px);
@@ -54,20 +59,9 @@ function findSolutions(game: Game): number[][] {
         (aPresses * game.ax + bPresses * game.bx !== game.px) ||
         (aPresses * game.ay + bPresses * game.by !== game.py)
     )
-        return [];    
+        return [];
 
-    return [[aPresses, bPresses]];
-}
-
-function findMinTokens(solutions: number[][]) {
-    const first = solutions.pop() ?? [-1,-1];
-
-    let minTokens = 3 * first[0] + first[1];
-
-    for (const solution of solutions)
-        minTokens = Math.min(minTokens, 3 * solution[0] + solution[1]);
-
-    return minTokens;
+    return [aPresses, bPresses];
 }
 
 export function day13() {
@@ -85,24 +79,25 @@ export function day13() {
             py: parseInt(matches[6]),
         };
 
-        return game;        
+        return game;
     });
 
     let naiveTokens = 0;
     let convertedTokens = 0
 
     for (const game of games) {
-        const naiveSolutions = findSolutions(game);
-        const naiveMinTokens = findMinTokens(naiveSolutions);
+        const naiveSolution = findSolution(game);
 
         game.px += 10000000000000;
         game.py += 10000000000000;
 
-        const convertedSolutions = findSolutions(game);
-        const convertedMinTokens = findMinTokens(convertedSolutions);
+        const convertedSolution = findSolution(game);
 
-        naiveTokens += naiveMinTokens > 0 ? naiveMinTokens : 0;
-        convertedTokens += convertedMinTokens > 0 ? convertedMinTokens : 0;
+        if (naiveSolution.length > 0)
+            naiveTokens += 3 * naiveSolution[0] + naiveSolution[1];
+
+        if (convertedSolution.length > 0)
+            convertedTokens += 3 * convertedSolution[0] + convertedSolution[1];
     }
 
     console.log(`Part 1: ${naiveTokens}`);
