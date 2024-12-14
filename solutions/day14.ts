@@ -19,6 +19,34 @@ function updateAllPositions(robots: Robot[], xMax: number, yMax: number, iterati
     }
 }
 
+function getStandardDeviation(robots: Robot[]) {
+    const xValues = robots.map(r => r.fx);
+    const yValues = robots.map(r => r.fy);
+    
+    const xMean = xValues.reduce((a,b) => a + b) / xValues.length;
+    const yMean = yValues.reduce((a,b) => a + b) / yValues.length;
+
+    const xSquares = xValues.map(x => Math.pow(x - xMean, 2)).reduce((a,b) => a + b);
+    const ySquares = yValues.map(y => Math.pow(y - yMean, 2)).reduce((a,b) => a + b);
+
+    const xStdDev = Math.sqrt(xSquares / (xValues.length - 1));
+    const yStdDev = Math.sqrt(ySquares / (yValues.length - 1));
+
+    return (xStdDev + yStdDev) / 2;
+}
+
+function getSafetyFactor(robots: Robot[], xMax: number, yMax: number) {
+    const horizLimit = Math.floor(xMax / 2);
+    const vertLimit = Math.floor(yMax / 2);
+
+    const topLeft = robots.filter(r => r.fx < horizLimit && r.fy < vertLimit).length;
+    const topRight = robots.filter(r => r.fx > horizLimit && r.fy < vertLimit).length;
+    const bottomLeft = robots.filter(r => r.fx < horizLimit && r.fy > vertLimit).length;
+    const bottomRight = robots.filter(r => r.fx > horizLimit && r.fy > vertLimit).length;
+
+    return topLeft * topRight * bottomLeft * bottomRight;
+}
+
 export function day14() {
     const input = readDayInput(14);
 
@@ -43,20 +71,21 @@ export function day14() {
 
     updateAllPositions(robots, xMax, yMax, iterations);
 
-    const horizLimit = Math.floor(xMax / 2);
-    const vertLimit = Math.floor(yMax / 2);
-
-    const topLeft = robots.filter(r => r.fx < horizLimit && r.fy < vertLimit).length;
-    const topRight = robots.filter(r => r.fx > horizLimit && r.fy < vertLimit).length;
-    const bottomLeft = robots.filter(r => r.fx < horizLimit && r.fy > vertLimit).length;
-    const bottomRight = robots.filter(r => r.fx > horizLimit && r.fy > vertLimit).length;
-
-    const safetyFactor = topLeft * topRight * bottomLeft * bottomRight;
+    const safetyFactor = getSafetyFactor(robots, xMax, yMax);
 
     console.log(`Part 1: ${safetyFactor}`);
 
-    console.log('Scanning for easter egg. Left/right to move time, q to quit');
-    let seconds = 11;
+    let seconds = 0;
+    let stdDev = getStandardDeviation(robots);
+
+    while (stdDev > 20 && seconds < 10000) {
+        seconds += 1;
+        updateAllPositions(robots, xMax, yMax, seconds);
+        stdDev = getStandardDeviation(robots);
+    }
+
+    console.log(`Possible christmas found at ${seconds} seconds. Manual scanning now`);
+    console.log('Scanning for easter egg. Left/right to move time, enter to accept, q to quit');
 
     readline.emitKeypressEvents(process.stdin);
     process.stdin.setRawMode(true);
@@ -71,10 +100,10 @@ export function day14() {
         }
 
         else if (key.name === 'left')
-            seconds -= 101;
+            seconds -= 1;
 
         else if (key.name === 'right')
-            seconds += 101;
+            seconds += 1;
 
         updateAllPositions(robots, xMax, yMax, seconds);
 
@@ -96,8 +125,11 @@ export function day14() {
 
         const output = grid.map(l => l.join('')).join('\n');
 
+        const stdDev = getStandardDeviation(robots);
+        const safety = getSafetyFactor(robots, xMax, yMax);
+
         console.log(output);
-        console.log(`Seconds elapsed above: ${seconds}`);
+        console.log(`${seconds} seconds, std dev ${stdDev}, safety ${safety}`);
 
     });
 }
