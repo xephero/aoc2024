@@ -107,18 +107,14 @@ function wideMove(map: string[][], row: number, col: number, moveRow: number, mo
 
     // Do the vertical move
     const nextRow = row + moveRow;
-    
-    // If it's an empty space, just move there
-    if (map[nextRow][col] === '.') {
-        map[nextRow][col] = map[row][col];
-        map[row][col] = '.';
-        return [nextRow, col];
+
+    // Move the boxes, if any
+    if (map[nextRow][col] === '[') {
+        doVerticalMove(map, nextRow, col, moveRow);
     }
-
-    const startCol = map[nextRow][col] === ']' ? col - 1 : col;
-
-    // Move the boxes
-    doVerticalMove(map, nextRow, startCol, moveRow);
+    else if (map[nextRow][col] === ']') {
+        doVerticalMove(map, nextRow, col-1, moveRow);
+    }
 
     // Move the guy
     map[row][col] = map[nextRow][col];
