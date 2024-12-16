@@ -145,7 +145,7 @@ export function day15() {
     let botRow = 0;
     let botCol = 0;
     for (let row = 0; row < map.length; row++)
-        for (let col = 0; col < map.length; col++)
+        for (let col = 0; col < map[0].length; col++)
             if (map[row][col] === '@') {
                 botRow = row;
                 botCol = col;
