@@ -1,129 +1,103 @@
 import { readDayInput } from "../utility";
 
-function arrowsToArrows(arrows: string[]) {
-    const keypadRows = ['xUA', 'LDR'];
+const recurseMap: {[key: string]: number} = {};
 
-    let curKeyRow = keypadRows.findIndex(r => r.includes('A'));
-    let curKeyCol = keypadRows[curKeyRow].indexOf('A');
-    let sequence: string[] = [];
+function findLowest(code: string, maxIteration: number, iteration = 0, numpad = true) {
+    // Base case: the code is the final length here
+    if (maxIteration === iteration)
+        return code.length;
 
-    for (const arrow of arrows) {
-        // Get the row and col from the indexes
-        const nextKeyRow = keypadRows.findIndex(r => r.includes(arrow));
-        const nextKeyCol = keypadRows[nextKeyRow].indexOf(arrow);
+    const mapKey = `${code}.${numpad ? 'N' : 'A'}.${maxIteration - iteration}`;
 
-        // Avoid the empty spot! Moving from top row to L requires a down press before col movement
-        if (curKeyRow === 0 && nextKeyCol === 0) {
-            sequence.push('D');
-            curKeyRow++;
-        }
+    if (mapKey in recurseMap)
+        return recurseMap[mapKey];
 
-        while (nextKeyCol > curKeyCol) {
-            sequence.push('R');
-            curKeyCol++;
-        }
+    const keypad = numpad ? [ '789', '456', '123', 'x0A' ] : [ 'xUA', 'LDR' ];
+    const invalidRow = numpad ? 3 : 0;
+    const invalidCol = 0;
 
-        while (nextKeyRow < curKeyRow) {
-            sequence.push('U');
-            curKeyRow--;
-        }
+    let curKeyRow = keypad.findIndex(r => r.includes('A'));
+    let curKeyCol = keypad[curKeyRow].indexOf('A');
 
-        while (nextKeyRow > curKeyRow) {
-            sequence.push('D');
-            curKeyRow++;
-        }
-
-        while (nextKeyCol < curKeyCol) {
-            sequence.push('L');
-            curKeyCol--;
-        }
-
-        sequence.push('A');
-    }
-
-    return sequence;
-}
-
-function codeToArrows(code: string[]) {
-    const keypadRows = [ '789', '456', '123', 'x0A' ];
-
-    let curKeyRow = keypadRows.findIndex(r => r.includes('A'));
-    let curKeyCol = keypadRows[curKeyRow].indexOf('A');
-    let sequence: string[] = [];
+    let total = 0;
 
     for (const button of code) {
-        // Get the row and col from the indexes
-        const nextKeyRow = keypadRows.findIndex(r => r.includes(button));
-        const nextKeyCol = keypadRows[nextKeyRow].indexOf(button);
+        const nextKeyRow = keypad.findIndex(r => r.includes(button));
+        const nextKeyCol = keypad[nextKeyRow].indexOf(button);
 
-        // Avoid the empty spot! Moving to left col from bottom row means we need U first
-        if (curKeyRow === 3 && nextKeyCol === 0) {
-            while (nextKeyRow < curKeyRow) {
-                sequence.push('U');
-                curKeyRow--;
-            }
-        }
+        let horiz = '';
+        let vert = '';
+        let forceHorizFirst = false;
+        let forceVertFirst = false;
 
-        if (curKeyCol === 0 && nextKeyRow === 3) {
-            while (nextKeyCol > curKeyCol) {
-                sequence.push('R');
-                curKeyCol++;
-            }
+        // Special case: maneuvering around the void spot
+        // Happens if we're on the invalid column and need to move to the invalid row, or vice versa
+        // Numpad: on 147 and need 0A, or vice versa
+        // D-pad: on UA and need L, or vice versa
+
+        // 147 -> 0A or L -> UA
+        if (curKeyCol === invalidCol && nextKeyRow === invalidRow)
+            forceHorizFirst = true;
+
+        // 0A -> 147 or UA -> L
+        else if (curKeyRow === invalidRow && nextKeyCol === invalidCol)
+            forceVertFirst = true;
+
+        // Gather the horizontal and vertical directions needed
+        while (nextKeyCol > curKeyCol) {
+            horiz += 'R';
+            curKeyCol++;
         }
 
         while (nextKeyCol < curKeyCol) {
-            sequence.push('L');
+            horiz += 'L';
             curKeyCol--;
         }
 
-        while (nextKeyRow < curKeyRow) {
-            sequence.push('U');
-            curKeyRow--;
-        }
-
         while (nextKeyRow > curKeyRow) {
-            sequence.push('D');
+            vert += 'D';
             curKeyRow++;
         }
 
-        while (nextKeyCol > curKeyCol) {
-            sequence.push('R');
-            curKeyCol++;
+        while (nextKeyRow < curKeyRow) {
+            vert += 'U';
+            curKeyRow--;
         }
-        
 
-        sequence.push('A');
+        // Forced ordering is easy
+        if (forceVertFirst) {
+            total += findLowest(vert + horiz + 'A', maxIteration, iteration + 1, false);
+            continue;
+        } else if (forceHorizFirst) {
+            total += findLowest(horiz + vert + 'A', maxIteration, iteration + 1, false);
+            continue;
+        }
+
+        total += Math.min(
+            findLowest(vert + horiz + 'A', maxIteration, iteration + 1, false),
+            findLowest(horiz + vert + 'A', maxIteration, iteration + 1, false)
+        );
     }
 
-    return sequence;
-}
-
-function arrowLoop(sequence: string[], robots: number) {
-    let lastInput = sequence;
-    for (let bot = 0; bot < robots; bot++)
-        lastInput = arrowsToArrows(lastInput);
-
-    return lastInput.length;
+    recurseMap[mapKey] = total;
+    return total;
 }
 
 export function day21() {
     const input = readDayInput(21);
 
-    const codes = input.split('\n').map(l => l.split(''));
+    const codes = input.split('\n');
 
     let oneRobotComplexity = 0;
     let allRobotComplexity = 0;
 
     for (const code of codes) {
-        const sequence = codeToArrows(code);
-        const keyNumber = parseInt(code.join(''));
-
-        oneRobotComplexity += arrowLoop(sequence, 2) * keyNumber;
-        allRobotComplexity += arrowLoop(sequence, 25) * keyNumber;
+        const keyNumber = parseInt(code);
+        
+        oneRobotComplexity += findLowest(code, 2 + 1) * keyNumber;
+        allRobotComplexity += findLowest(code, 25 + 1) * keyNumber;
     }
 
-    // 219366
     console.log(`Part 1: ${oneRobotComplexity}`);
     console.log(`Part 2: ${allRobotComplexity}`);
-
 }
