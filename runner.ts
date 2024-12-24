@@ -14,6 +14,7 @@ import { day20 } from "./solutions/day20";
 import { day21 } from "./solutions/day21";
 import { day22 } from "./solutions/day22";
 import { day23 } from "./solutions/day23";
+import { day24 } from "./solutions/day24";
 import { day3 } from "./solutions/day3";
 import { day4 } from "./solutions/day4";
 import { day5 } from "./solutions/day5";
@@ -46,6 +47,7 @@ const days: {[key: number]: () => void;} = {
     21: day21,
     22: day22,
     23: day23,
+    24: day24,
 };
 
 let day: number = -1;
