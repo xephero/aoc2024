@@ -46,5 +46,5 @@ export function day10() {
             }
 
     console.log(`Part 1: ${score}`);
-    console.log(`Part 1: ${rating}`);
+    console.log(`Part 2: ${rating}`);
 }

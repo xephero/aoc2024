@@ -53,5 +53,5 @@ export function day19() {
     const totalCombinations = viablePatterns.reduce((a, b) => a + b);
 
     console.log(`Part 1: ${totalViablePatterns}`);
-    console.log(`Part 1: ${totalCombinations}`);
+    console.log(`Part 2: ${totalCombinations}`);
 }

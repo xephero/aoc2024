@@ -47,9 +47,6 @@ function solveNodes(nodes: Node[]) {
 
         const nextDistance = node.distance + 1;
 
-        if (node.isEnd)
-            console.log(`End: ${node.distance}`);
-
         for (const neighbor of neighbors)
             if (neighbor.distance > nextDistance)
                 neighbor.distance = nextDistance;

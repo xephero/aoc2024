@@ -62,5 +62,5 @@ export function day7() {
     }
 
     console.log(`Part 1: ${arithmeticTotal}`);
-    console.log(`Part 1: ${concatTotal}`);
+    console.log(`Part 2: ${concatTotal}`);
 }

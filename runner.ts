@@ -61,4 +61,31 @@ else {
     day = parseInt(daylist[daylist.length-1]);
 }
 
-days[day]();
+// Super secret benchmark
+if (day === 0) {
+    let timer = process.hrtime();
+    const times: number[][] = [];
+
+    for (let dayNum = 1; dayNum <= 25; dayNum++) {
+        console.log(`Running day ${dayNum}...`);
+        timer = process.hrtime();
+        days[dayNum]();
+        const lapTime = process.hrtime(timer);
+        times.push(lapTime);        
+    }
+
+    let totalTime = 0;
+
+    for (let i = 1; i <= 25; i++) {
+        const seconds = times[i-1][0] + times[i-1][1]/1000000000;
+        console.log(`Day ${i} took ${seconds}s`);
+        totalTime += seconds;
+    }
+
+    console.log(`Total time: ${totalTime}s`);
+
+    // because day 14 has input binding, lol
+    process.exit();
+} else {
+    days[day]();
+}

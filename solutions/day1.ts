@@ -11,13 +11,12 @@ export function day1() {
     left.sort((a,b) => a - b);
     right.sort((a,b) => a - b);
 
-    /* part 1
-    const total = left
+
+    const distance = left
         .map((val, i) => Math.abs(val - right[i]))
         .reduce((sum, val) => sum += val, 0);
-    */
 
-    const total = left
+    const similarity = left
         .map((lval) => (
             right
                 .map((rval) => rval === lval ? lval : 0)
@@ -25,5 +24,6 @@ export function day1() {
         ))
         .reduce((sum, val) => sum += val, 0);
 
-    console.log(total);
+    console.log(`Part 1: ${distance}`);
+    console.log(`Part 2: ${similarity}`);
 }

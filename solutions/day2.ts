@@ -30,27 +30,32 @@ function levelsWithRemoved(levels, index) {
 }
 
 export function day2() {
-    console.log(
-        readDayInput(2)
-        .split('\n')
-        .map((line): number => {
-            const levels = line.split(' ').map(l => parseInt(l));
+    const input = readDayInput(2).split('\n');
 
-            const safeNaturally = levels.every((_, i) => isSafe(levels, i));
-            let safeWithDamp = false;
+    let natural = 0;
+    let damped = 0;
 
-            if (!safeNaturally) {
-                for (let i = 0; i < levels.length; i++) {
-                    const proposal = levelsWithRemoved(levels, i);
-                    if (proposal.every((_, i) => isSafe(proposal, i))) {
-                        safeWithDamp = true;
-                        break;
-                    }
+    for (const line of input) {
+    
+        const levels = line.split(' ').map(l => parseInt(l));
+
+        const safeNaturally = levels.every((_, i) => isSafe(levels, i));
+        let safeWithDamp = false;
+
+        if (!safeNaturally) {
+            for (let i = 0; i < levels.length; i++) {
+                const proposal = levelsWithRemoved(levels, i);
+                if (proposal.every((_, i) => isSafe(proposal, i))) {
+                    safeWithDamp = true;
+                    break;
                 }
             }
+        }
 
-            return (safeNaturally || safeWithDamp) ? 1 : 0;
-        })
-        .reduce((sum, count) => sum += count, 0)
-    );
+        natural += safeNaturally ? 1 : 0;
+        damped += (safeNaturally || safeWithDamp) ? 1 : 0;
+    }
+
+    console.log(`Part 1: ${natural}`);
+    console.log(`Part 2: ${damped}`);
 }
